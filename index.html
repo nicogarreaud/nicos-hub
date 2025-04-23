@@ -243,5 +243,74 @@
   });
 </script>
 
+  <!-- 1) Cargar Firebase SDK (añade esto en el <head> o justo antes de tu script principal) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <!-- 2) Inicializar Firebase y Firestore (usa tu firebaseConfig) -->
+  <script>
+    // Configuración de tu proyecto Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyB-BcypQo7cWL6jEWm_KVvMyNTN3Tgr204",
+      authDomain: "nico-s-hub.firebaseapp.com",
+      projectId: "nico-s-hub",
+      storageBucket: "nico-s-hub.firebasestorage.app",
+      messagingSenderId: "379085438498",
+      appId: "1:379085438498:web:05fca04d37cbcc9cb7947b",
+      measurementId: "G-7D6ZF24CJM"
+    };
+    // Inicializa la app
+    firebase.initializeApp(firebaseConfig);
+    // Referencia a Firestore
+    const db = firebase.firestore();
+  </script>
+
+  <!-- 3) Lógica para TFM Zone -->
+  <script>
+    // Elementos del DOM
+    const tfmInput  = document.getElementById('input-tfm');
+    const tfmBtn    = document.getElementById('add-tfm');
+    const tfmList   = document.getElementById('notes-tfm');
+
+    // Función para renderizar las notas desde Firestore
+    function renderTFMNotes() {
+      tfmList.innerHTML = ''; // limpia la lista
+      db.collection('notes-tfm')
+        .orderBy('timestamp', 'desc')    // últimas primero
+        .get()
+        .then(snapshot => {
+          snapshot.forEach(doc => {
+            const { text, timestamp } = doc.data();
+            const dateStr = new Date(timestamp).toLocaleString();
+            const li = document.createElement('li');
+            li.innerHTML = `<span class="note-date">[${dateStr}]</span> ${text}`;
+            tfmList.appendChild(li);
+          });
+        })
+        .catch(err => console.error('Error al leer notas TFM:', err));
+    }
+
+    // Evento para añadir una nueva nota
+    tfmBtn.addEventListener('click', () => {
+      const text = tfmInput.value.trim();
+      if (!text) return;
+      // Guarda en Firestore con marca de tiempo
+      db.collection('notes-tfm')
+        .add({
+          text,
+          timestamp: Date.now()
+        })
+        .then(() => {
+          tfmInput.value = '';     // limpia el textarea
+          renderTFMNotes();        // recarga la lista
+        })
+        .catch(err => console.error('Error al guardar nota TFM:', err));
+    });
+
+    // Carga inicial
+    renderTFMNotes();
+  </script>
+
+  
 </body>
 </html>
