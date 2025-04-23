@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Nico's Hub</title>
+  <style>
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f9f9f9; color: #333; }
+    header { background: #111827; color: #fff; padding: 1rem 2rem; font-size: 1.5rem; font-weight: bold; }
+    nav { background: #e5e7eb; padding: 1rem; display: flex; gap: 1rem; flex-wrap: wrap; border-bottom: 1px solid #d1d5db; }
+    nav a { color: #1f2937; text-decoration: none; padding: 0.5rem 1rem; background: #f3f4f6; border-radius: .5rem; transition: .2s; }
+    nav a:hover { background: #d1d5db; }
+    section { padding: 2rem; }
+    .section-title { font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem; }
+    .card { background: #fff; padding: 1rem; border-radius: .5rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 2rem; }
+
+    /* Planner */
+    #planner-controls { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: 1rem; }
+    #prev-week, #next-week { padding: .5rem 1rem; border: none; background: #111827; color: #fff; border-radius: .25rem; cursor: pointer; }
+    #prev-week:hover, #next-week:hover { background: #1f2937; }
+    #week-range, #progress { font-weight: bold; }
+    #quote { font-style: italic; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { border: 1px solid #ddd; padding: .75rem; text-align: left; }
+    th { background: #f3f4f6; }
+    input[type="checkbox"] { transform: scale(1.2); margin-right: .5rem; }
+
+    /* Notas */
+    .note-input { width: 100%; min-height: 3rem; padding: .5rem; margin-bottom: .5rem; border: 1px solid #ccc; border-radius: .25rem; }
+    .note-btn { padding: .5rem 1rem; background: #111827; color: #fff; border: none; border-radius: .25rem; cursor: pointer; }
+    .note-btn:hover { background: #1f2937; }
+    .notes-list { list-style: none; padding: 0; }
+    .notes-list li { background: #f3f4f6; padding: .5rem; border-radius: .25rem; margin-bottom: .5rem; }
+    .note-date { font-size: .85rem; color: #555; margin-right: .5rem; }
+  </style>
+</head>
+<body>
+
+  <header>Nico's Hub</header>
+  <nav>
+    <a href="#planner">🗓 Planner</a>
+    <a href="#tfm">📚 TFM Zone</a>
+    <a href="#energie">🏋️ Énergie Tasks</a>
+    <a href="#music">🎶 Music Corner</a>
+    <a href="#croata">🗣️ Croata Diario</a>
+    <a href="#otros">📂 Otros Proyectos</a>
+  </nav>
+
+  <!-- PLANNER -->
+  <section id="planner">
+    <div class="section-title">🗓 Planner Diario/Semanal</div>
+    <div class="card">
+      <div id="planner-controls">
+        <button id="prev-week">&larr; Semana anterior</button>
+        <div id="week-range"></div>
+        <button id="next-week">Semana siguiente &rarr;</button>
+        <div id="progress">Progreso: 0%</div>
+        <div id="quote"></div>
+      </div>
+      <table id="planner-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Día</th>
+            <th>Horario</th>
+            <th>Sugerencia</th>
+            <th>Hecho</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- TFM Zone -->
+  <section id="tfm">
+    <div class="section-title">📚 TFM Zone</div>
+    <div class="card">
+      <textarea id="input-tfm" class="note-input" placeholder="Escribe una nota sobre tu TFM..."></textarea>
+      <button id="add-tfm" class="note-btn">Agregar nota</button>
+      <ul id="notes-tfm" class="notes-list"></ul>
+    </div>
+  </section>
+
+  <!-- Énergie Tasks -->
+  <section id="energie">
+    <div class="section-title">🏋️ Énergie Tasks</div>
+    <div class="card">
+      <textarea id="input-energie" class="note-input" placeholder="Tareas o ideas para Énergie..."></textarea>
+      <button id="add-energie" class="note-btn">Agregar nota</button>
+      <ul id="notes-energie" class="notes-list"></ul>
+    </div>
+  </section>
+
+  <!-- Music Corner -->
+  <section id="music">
+    <div class="section-title">🎶 Music Corner</div>
+    <div class="card">
+      <textarea id="input-music" class="note-input" placeholder="Ideas, progresos o links musicales..."></textarea>
+      <button id="add-music" class="note-btn">Agregar nota</button>
+      <ul id="notes-music" class="notes-list"></ul>
+    </div>
+  </section>
+
+  <!-- Croata Diario -->
+  <section id="croata">
+    <div class="section-title">🗣️ Croata Diario</div>
+    <div class="card">
+      <textarea id="input-croata" class="note-input" placeholder="Recursos o notas de estudio de croata..."></textarea>
+      <button id="add-croata" class="note-btn">Agregar nota</button>
+      <ul id="notes-croata" class="notes-list"></ul>
+    </div>
+  </section>
+
+  <!-- Otros Proyectos -->
+  <section id="otros">
+    <div class="section-title">📂 Otros Proyectos</div>
+    <div class="card">
+      <textarea id="input-otros" class="note-input" placeholder="Otras ideas o proyectos..."></textarea>
+      <button id="add-otros" class="note-btn">Agregar nota</button>
+      <ul id="notes-otros" class="notes-list"></ul>
+    </div>
+  </section>
+
+<script>
+  // ————— PLANNER SEMANAL —————
+  const days       = ['Lunes','Martes','Miércoles','Jueves','Viernes'];
+  const blocks     = [
+    '09:00-10:00 (Bloque Foco)',
+    '10:00-10:15 (Break)',
+    '10:15-10:45 (Croata)',
+    '10:45-11:45 (Bloque Flexible)',
+    '11:45-12:30 (Almuerzo/Prep)'
+  ];
+  const suggestions = {
+    'Lunes':      ['TFM','Break','Croata','Música / 05:46','Almuerzo'],
+    'Martes':     ['Énergie (B2B)','Break','Croata','TFM','Almuerzo'],
+    'Miércoles':  ['TFM','Break','Croata','Música / 05:46','Almuerzo'],
+    'Jueves':     ['Énergie','Break','Croata','TFM','Almuerzo'],
+    'Viernes':    ['TFM o Énergie','Break','Croata','Libre / Creativo','Almuerzo']
+  };
+  const quotes = [
+    "Recuerda por qué empezaste 💪",
+    "Un paso a la vez, un día a la vez.",
+    "La constancia vence lo que la gana. 🔥",
+    "Cada tarea completada te acerca a tu meta.",
+    "Tu futuro yo te lo agradecerá."
+  ];
+
+  let weekOffset = 0;
+  const tbody      = document.querySelector('#planner-table tbody');
+  const rangeEl    = document.getElementById('week-range');
+  const progressEl = document.getElementById('progress');
+  const quoteEl    = document.getElementById('quote');
+
+  document.getElementById('prev-week').onclick = () => { weekOffset--; renderPlanner(); };
+  document.getElementById('next-week').onclick = () => { weekOffset++; renderPlanner(); };
+
+  function getWeekDates(offset) {
+    const now = new Date();
+    const dow = now.getDay();
+    const diff = (dow === 0 ? -6 : 1 - dow) + offset * 7;
+    const mon = new Date(now);
+    mon.setDate(now.getDate() + diff);
+    return Array.from({length:5}, (_,i) => {
+      const d = new Date(mon);
+      d.setDate(mon.getDate() + i);
+      return d.toISOString().split('T')[0];
+    });
+  }
+
+  function renderPlanner() {
+    tbody.innerHTML = '';
+    const dates = getWeekDates(weekOffset);
+    rangeEl.textContent = `Semana: ${dates[0]} → ${dates[4]}`;
+
+    dates.forEach((dateStr, idx) => {
+      const dayName = days[idx];
+      blocks.forEach((block, bIdx) => {
+        const id = `${dateStr}-${bIdx}`;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${dateStr}</td>
+          <td>${dayName}</td>
+          <td>${block}</td>
+          <td>${suggestions[dayName][bIdx]}</td>
+          <td><input type="checkbox" id="${id}"></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    });
+
+    const cbs = tbody.querySelectorAll('input[type="checkbox"]');
+    cbs.forEach(cb => {
+      if (localStorage.getItem(cb.id) === 'true') cb.checked = true;
+      cb.onchange = () => {
+        localStorage.setItem(cb.id, cb.checked);
+        updateProgress(cbs);
+      };
+    });
+
+    updateProgress(cbs);
+    quoteEl.textContent = quotes[Math.floor(Math.random() * quotes.length)];
+  }
+
+  function updateProgress(checkboxes) {
+    const done = Array.from(checkboxes).filter(cb => cb.checked).length;
+    const pct  = Math.round(done / checkboxes.length * 100);
+    progressEl.textContent = `Progreso: ${pct}% (${done}/${checkboxes.length})`;
+  }
+
+  renderPlanner();
+
+
+  // ————— NOTAS POR SECCIÓN —————
+  const sections = ['tfm','energie','music','croata','otros'];
+
+  sections.forEach(sec => {
+    const key    = `notes-${sec}`;
+    const btn    = document.getElementById(`add-${sec}`);
+    const input  = document.getElementById(`input-${sec}`);
+    const listEl = document.getElementById(`notes-${sec}`);
+
+    let notes = JSON.parse(localStorage.getItem(key) || '[]');
+    function renderNotes() {
+      listEl.innerHTML = '';
+      notes.forEach(n => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="note-date">[${n.date}]</span> ${n.text}`;
+        listEl.appendChild(li);
+      });
+    }
+    renderNotes();
+
+    btn.addEventListener('click', () => {
+      const text = input.value.trim();
+      if (!text) return;
+      const now  = new Date().toLocaleString();
+      notes.push({ date: now, text });
+      localStorage.setItem(key, JSON.stringify(notes));
+      input.value = '';
+      renderNotes();
+    });
+  });
+</script>
+
+</body>
+</html>
