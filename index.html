@@ -250,72 +250,49 @@
 
 
     // ————— NOTAS CON LocalStorage, EDITAR y BORRAR —————
-    const sections = ['tfm','energie','music','croata','otros'];
+   // Secciones y colecciones Firestore
+const sections = [
+  { sec: 'tfm',     col: 'notes-tfm'     },
+  { sec: 'energie', col: 'notes-energie' },
+  { sec: 'music',   col: 'notes-music'   },
+  { sec: 'croata',  col: 'notes-croata'  },
+  { sec: 'otros',   col: 'notes-otros'   }
+];
 
-    sections.forEach(sec => {
-      const key = `notes-${sec}`;
-      const inputEl = document.getElementById(`input-${sec}`);
-      const btnEl   = document.getElementById(`add-${sec}`);
-      const listEl  = document.getElementById(`notes-${sec}`);
+sections.forEach(({ sec, col }) => {
+  const inputEl = document.getElementById(`input-${sec}`);
+  const btnEl   = document.getElementById(`add-${sec}`);
+  const listEl  = document.getElementById(`notes-${sec}`);
 
-      // cargar o inicializar
-      let notes = JSON.parse(localStorage.getItem(key) || '[]');
-
-      function renderNotes() {
-        listEl.innerHTML = '';
-        notes.forEach(n => {
+  function renderNotes() {
+    listEl.innerHTML = '';
+    db.collection(col).orderBy('timestamp','desc').get()
+      .then(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const date = new Date(data.timestamp).toLocaleString();
           const li = document.createElement('li');
-          li.dataset.id = n.id;
-          li.innerHTML = `
-            <span class="note-date">[${n.date}]</span>
-            <span class="note-text">${n.text}</span>
-            <span class="note-actions">
-              <button class="edit-note">Editar</button>
-              <button class="delete-note">Eliminar</button>
-            </span>
-          `;
+          li.innerHTML = `<span class="note-date">[${date}]</span> ${data.text}`;
           listEl.appendChild(li);
         });
-        attachNoteEvents();
-      }
-
-      function attachNoteEvents() {
-        listEl.querySelectorAll('.delete-note').forEach(btn => {
-          btn.onclick = () => {
-            const id = btn.closest('li').dataset.id;
-            notes = notes.filter(n => n.id.toString() !== id);
-            localStorage.setItem(key, JSON.stringify(notes));
-            renderNotes();
-          };
-        });
-        listEl.querySelectorAll('.edit-note').forEach(btn => {
-          btn.onclick = () => {
-            const li = btn.closest('li');
-            const id = li.dataset.id;
-            const note = notes.find(n => n.id.toString() === id);
-            const newText = prompt('Editar nota:', note.text);
-            if (newText !== null) {
-              note.text = newText.trim();
-              localStorage.setItem(key, JSON.stringify(notes));
-              renderNotes();
-            }
-          };
-        });
-      }
-
-      btnEl.addEventListener('click', () => {
-        const text = inputEl.value.trim();
-        if (!text) return;
-        const now = new Date().toLocaleString();
-        const id  = Date.now();  // clave única
-        notes.unshift({ id, date: now, text });
-        localStorage.setItem(key, JSON.stringify(notes));
-        inputEl.value = '';
-        renderNotes();
       });
+  }
 
-      renderNotes();
+  btnEl.addEventListener('click', () => {
+    const text = inputEl.value.trim();
+    if (!text) return;
+    db.collection(col).add({ text, timestamp: Date.now() })
+      .then(() => { inputEl.value = ''; renderNotes(); });
+  });
+
+  renderNotes();
+
     });
+    // — Inicializar Firebase —
+const firebaseConfig = { /* pega aquí tu firebaseConfig completo */ };
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
   </script>
 </body>
 </html>
