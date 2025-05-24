@@ -3,111 +3,190 @@
 <head>
   <meta charset="UTF-8">
   <title>Nico's Hub</title>
-
-  <!-- 1) Agrega aquí el SDK de Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
-    /* Variables de color para modo oscuro/claro (si ya lo tenías, mantenlas) */
     :root {
-      --bg: #f9f9f9; --fg: #333; --card-bg: #fff;
-      --header-bg: #111827; --header-fg: #fff;
-      --nav-bg: #e5e7eb; --nav-link-bg: #f3f4f6; --nav-link-fg: #1f2937;
-      --btn-bg: #111827; --btn-fg: #fff; --btn-hover-bg: #1f2937;
+      --bg: #f9f9f9;
+      --fg: #333;
+      --card-bg: #fff;
+      --header-bg: #111827;
+      --header-fg: #fff;
+      --nav-bg: #e5e7eb;
+      --nav-link-bg: #f3f4f6;
+      --nav-link-fg: #1f2937;
+      --btn-bg: #111827;
+      --btn-fg: #fff;
+      --btn-hover-bg: #1f2937;
+      --divider: #d1d5db;
+      --note-date: #555;
     }
     [data-theme="dark"] {
-      --bg: #1e1e2e; --fg: #e0e0e0; --card-bg: #2e2e3e;
-      --header-bg: #0f0f1f; --header-fg: #e0e0e0;
-      --nav-bg: #2e2e3e; --nav-link-bg: #3e3e4e; --nav-link-fg: #e0e0e0;
-      --btn-bg: #3e3e4e; --btn-fg: #e0e0e0; --btn-hover-bg: #5e5e7e;
+      --bg: #1e1e2e;
+      --fg: #e0e0e0;
+      --card-bg: #2e2e3e;
+      --header-bg: #0f0f1f;
+      --header-fg: #e0e0e0;
+      --nav-bg: #2e2e3e;
+      --nav-link-bg: #3e3e4e;
+      --nav-link-fg: #e0e0e0;
+      --btn-bg: #3e3e4e;
+      --btn-fg: #e0e0e0;
+      --btn-hover-bg: #5e5e7e;
+      --divider: #444;
+      --note-date: #b0b0b0;
     }
-
+    html, body { height: 100%; }
     body {
-      margin: 0; font-family: 'Segoe UI', sans-serif;
-      background: var(--bg); color: var(--fg);
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
     }
     header {
-      background: var(--header-bg); color: var(--header-fg);
-      padding: 1rem 2rem; font-size: 1.5rem; font-weight: bold;
+      background: var(--header-bg);
+      color: var(--header-fg);
+      padding: 1rem 2rem;
+      font-size: 1.5rem;
+      font-weight: bold;
       position: relative;
     }
     #theme-toggle {
-      position: absolute; right: 1.5rem; top: 1rem;
-      background: none; border: none; font-size: 1.2rem; cursor: pointer;
+      position: absolute;
+      right: 2rem;
+      top: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
       color: var(--header-fg);
+      transition: color .2s;
     }
     nav {
-      background: var(--nav-bg); padding: 1rem;
-      display: flex; gap: 1rem; flex-wrap: wrap;
-      border-bottom: 1px solid #d1d5db;
+      background: var(--nav-bg);
+      padding: 1rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--divider);
     }
     nav a {
-      background: var(--nav-link-bg); color: var(--nav-link-fg);
-      padding: 0.5rem 1rem; border-radius: 0.5rem;
-      text-decoration: none; transition: .2s;
+      color: var(--nav-link-fg);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      background: var(--nav-link-bg);
+      border-radius: .5rem;
+      transition: .2s;
     }
-    nav a:hover { background: #d1d5db; }
-
-    section { padding: 2rem; }
-    .section-title { font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem; }
+    nav a:hover { background: var(--divider); }
+    section { padding: 2rem; max-width: 900px; margin: auto; }
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      letter-spacing: 0.03em;
+    }
     .card {
-      background: var(--card-bg); padding: 1rem; border-radius: 0.5rem;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 2rem;
+      background: var(--card-bg);
+      padding: 1rem;
+      border-radius: .5rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      margin-bottom: 2rem;
     }
-
     /* Planner */
     #planner-controls {
-      display: flex; flex-wrap: wrap; gap: .5rem; align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      align-items: center;
       margin-bottom: 1rem;
     }
     #planner-controls button {
-      background: var(--btn-bg); color: var(--btn-fg);
-      border: none; padding: .5rem 1rem; border-radius: .25rem;
+      background: var(--btn-bg);
+      color: var(--btn-fg);
+      border: none;
+      padding: .5rem 1rem;
+      border-radius: .25rem;
       cursor: pointer;
+      transition: background .2s;
     }
-    #planner-controls button:hover { background: var(--btn-hover-bg); }
+    #planner-controls button:hover { background: var(--btn-hover-bg);}
     #week-range, #progress { font-weight: bold; }
+    #week-range { margin: 0 1rem;}
     #quote { font-style: italic; margin-left: auto; }
-
     table {
-      width: 100%; border-collapse: collapse; margin-top: 1rem;
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
     }
     th, td {
-      border: 1px solid #ddd; padding: .75rem; text-align: left;
+      border: 1px solid var(--divider);
+      padding: .75rem;
+      text-align: left;
     }
-    th { background: #f3f4f6; }
-    input[type="checkbox"] { transform: scale(1.2); margin-right: .5rem; }
-
+    th { background: var(--nav-link-bg); }
+    input[type="checkbox"] { transform: scale(1.2); margin-right: .5rem;}
     /* Notas */
-    .note-input { width:100%; min-height:3rem; padding:.5rem; margin-bottom:.5rem;
-                  border:1px solid #ccc; border-radius:.25rem; }
+    .note-input {
+      width: 100%;
+      min-height: 3rem;
+      padding: .5rem;
+      margin-bottom: .5rem;
+      border: 1px solid #ccc;
+      border-radius: .25rem;
+      background: var(--card-bg);
+      color: var(--fg);
+      resize: vertical;
+    }
     .note-btn {
-      background: var(--btn-bg); color: var(--btn-fg); border:none;
-      padding:.5rem 1rem; border-radius:.25rem; cursor:pointer;
+      padding: .5rem 1rem;
+      background: var(--btn-bg);
+      color: var(--btn-fg);
+      border: none;
+      border-radius: .25rem;
+      cursor: pointer;
+      transition: background .2s;
+      margin-right: .5rem;
     }
-    .note-btn:hover { background: var(--btn-hover-bg); }
-    .notes-list { list-style:none; padding:0; }
+    .note-btn:hover { background: var(--btn-hover-bg);}
+    .notes-list { list-style: none; padding: 0;}
     .notes-list li {
-      background:#f3f4f6; padding:.5rem; border-radius:.25rem;
-      margin-bottom:.5rem; display:flex; align-items:center; justify-content:space-between;
+      background: var(--nav-link-bg);
+      padding: .5rem;
+      border-radius: .25rem;
+      margin-bottom: .5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
-    .note-date { font-size:.85rem; color:#555; margin-right:.5rem; }
+    .note-date { font-size: .85rem; color: var(--note-date); margin-right: .5rem; }
+    .note-text { flex: 1; }
     .note-actions button {
-      margin-left:.5rem; padding:.25rem .5rem; border:none; border-radius:.25rem;
-      cursor:pointer;
+      margin-left: .5rem;
+      padding: .25rem .5rem;
+      border: none;
+      border-radius: .25rem;
+      cursor: pointer;
+      font-size: .95em;
+      transition: background .2s;
     }
-    .edit-note { background:#3b82f6; color:#fff; }
-    .delete-note { background:#ef4444; color:#fff; }
+    .edit-note { background: #3b82f6; color: #fff;}
+    .edit-note:hover { background: #2563eb;}
+    .delete-note { background: #ef4444; color: #fff;}
+    .delete-note:hover { background: #b91c1c;}
+    @media (max-width: 650px) {
+      section { padding: 1rem;}
+      #planner-controls { flex-direction: column; align-items: stretch;}
+      #quote { margin-left: 0; margin-top:.5rem;}
+    }
   </style>
 </head>
 <body>
-
   <header>
     Nico's Hub
     <button id="theme-toggle" title="Cambiar tema">🌙</button>
   </header>
-
   <nav>
     <a href="#planner">🗓 Planner</a>
     <a href="#tfm">📚 TFM Zone</a>
@@ -116,7 +195,6 @@
     <a href="#croata">🗣️ Croata Diario</a>
     <a href="#otros">📂 Otros Proyectos</a>
   </nav>
-
   <!-- PLANNER -->
   <section id="planner">
     <div class="section-title">🗓 Planner Diario/Semanal</div>
@@ -138,153 +216,227 @@
       </table>
     </div>
   </section>
-
   <!-- SECCIONES DE NOTAS -->
-  <section id="tfm"    class="card-section"><div class="section-title">📚 TFM Zone</div>
+  <section id="tfm"><div class="section-title">📚 TFM Zone</div>
     <div class="card">
-      <textarea id="input-tfm" class="note-input" placeholder="Tu nota…"></textarea>
-      <button id="add-tfm" class="note-btn">Agregar</button>
+      <textarea id="input-tfm" class="note-input" placeholder="Escribe una nota sobre tu TFM..."></textarea>
+      <button id="add-tfm" class="note-btn">Agregar nota</button>
       <ul id="notes-tfm" class="notes-list"></ul>
     </div>
   </section>
-
-  <section id="energie" class="card-section"><div class="section-title">🏋️ Énergie Tasks</div>
+  <section id="energie"><div class="section-title">🏋️ Énergie Tasks</div>
     <div class="card">
-      <textarea id="input-energie" class="note-input" placeholder="Tu nota…"></textarea>
-      <button id="add-energie" class="note-btn">Agregar</button>
+      <textarea id="input-energie" class="note-input" placeholder="Tareas o ideas para Énergie..."></textarea>
+      <button id="add-energie" class="note-btn">Agregar nota</button>
       <ul id="notes-energie" class="notes-list"></ul>
     </div>
   </section>
-
-  <section id="music"   class="card-section"><div class="section-title">🎶 Music Corner</div>
+  <section id="music"><div class="section-title">🎶 Music Corner</div>
     <div class="card">
-      <textarea id="input-music" class="note-input" placeholder="Tu nota…"></textarea>
-      <button id="add-music" class="note-btn">Agregar</button>
+      <textarea id="input-music" class="note-input" placeholder="Ideas, progresos o links musicales..."></textarea>
+      <button id="add-music" class="note-btn">Agregar nota</button>
       <ul id="notes-music" class="notes-list"></ul>
     </div>
   </section>
-
-  <section id="croata"  class="card-section"><div class="section-title">🗣️ Croata Diario</div>
+  <section id="croata"><div class="section-title">🗣️ Croata Diario</div>
     <div class="card">
-      <textarea id="input-croata" class="note-input" placeholder="Tu nota…"></textarea>
-      <button id="add-croata" class="note-btn">Agregar</button>
+      <textarea id="input-croata" class="note-input" placeholder="Recursos o notas de estudio de croata..."></textarea>
+      <button id="add-croata" class="note-btn">Agregar nota</button>
       <ul id="notes-croata" class="notes-list"></ul>
     </div>
   </section>
-
-  <section id="otros"   class="card-section"><div class="section-title">📂 Otros Proyectos</div>
+  <section id="otros"><div class="section-title">📂 Otros Proyectos</div>
     <div class="card">
-      <textarea id="input-otros" class="note-input" placeholder="Tu nota…"></textarea>
-      <button id="add-otros" class="note-btn">Agregar</button>
+      <textarea id="input-otros" class="note-input" placeholder="Otras ideas o proyectos..."></textarea>
+      <button id="add-otros" class="note-btn">Agregar nota</button>
       <ul id="notes-otros" class="notes-list"></ul>
     </div>
   </section>
-
   <script>
-    // ——— PLANNER ———
+    // ——— PLANNER SEMANAL ———
     const days = ['Lunes','Martes','Miércoles','Jueves','Viernes'];
+
+    // Planner antes y después del 1 de mayo
     const scheduleBefore = {
-      blocks: ['09:00-10:00','10:00-10:15','10:15-10:45','10:45-11:45','11:45-12:30'],
+      blocks: [
+        '09:00-10:00 (Bloque Foco)',
+        '10:00-10:15 (Break)',
+        '10:15-10:45 (Croata)',
+        '10:45-11:45 (Bloque Flexible)',
+        '11:45-12:30 (Almuerzo/Prep)'
+      ],
       suggestions: {
-        Lunes: ['TFM','Break','Croata','Música','Almuerzo'],
-        Martes:['Énergie','Break','Croata','TFM','Almuerzo'],
-        Mié:   ['TFM','Break','Croata','Música','Almuerzo'],
-        Jue:   ['Énergie','Break','Croata','TFM','Almuerzo'],
-        Vie:   ['TFM/Énergie','Break','Croata','Libre','Almuerzo']
+        'Lunes':      ['TFM','Break','Croata','Música / 05:46','Almuerzo'],
+        'Martes':     ['Énergie (B2B)','Break','Croata','TFM','Almuerzo'],
+        'Miércoles':  ['TFM','Break','Croata','Música / 05:46','Almuerzo'],
+        'Jueves':     ['Énergie','Break','Croata','TFM','Almuerzo'],
+        'Viernes':    ['TFM o Énergie','Break','Croata','Libre / Creativo','Almuerzo']
       }
     };
-    // (similar scheduleAfter…)
+    const scheduleAfter = {
+      blocks: [
+        '09:00-09:45 (Bloque Foco)',
+        '09:45-10:00 (Break)',
+        '10:00-10:30 (Croata)',
+        '10:30-11:15 (Bloque Flexible)',
+        '11:15-11:30 (Prep)'
+      ],
+      suggestions: {
+        'Lunes':      ['TFM','Break','Croata','Música / 05:46','Preparación'],
+        'Martes':     ['Énergie','Break','Croata','TFM','Preparación'],
+        'Miércoles':  ['TFM','Break','Croata','Música / 05:46','Preparación'],
+        'Jueves':     ['Énergie','Break','Croata','TFM','Preparación'],
+        'Viernes':    ['TFM o Énergie','Break','Croata','Libre / Creativo','Preparación']
+      }
+    };
 
-    let weekOff=0, tbody=document.querySelector('#planner-table tbody'),
-        rEl=document.getElementById('week-range'),
-        pEl=document.getElementById('progress'),
-        qEl=document.getElementById('quote'),
-        quotes=['Recuerda por qué empezaste','Un paso…'];
+    let weekOffset = 0;
+    const tbody = document.querySelector('#planner-table tbody');
+    const rangeEl = document.getElementById('week-range');
+    const progressEl = document.getElementById('progress');
+    const quoteEl = document.getElementById('quote');
+    const quotes = [
+      "Recuerda por qué empezaste 💪",
+      "Un paso a la vez, un día a la vez.",
+      "La constancia vence lo que la gana. 🔥",
+      "Cada tarea completada te acerca a tu meta.",
+      "Tu futuro yo te lo agradecerá."
+    ];
 
-    document.getElementById('prev-week').onclick=() =>{ weekOff--;rP(); };
-    document.getElementById('next-week').onclick=() =>{ weekOff++;rP(); };
+    document.getElementById('prev-week').onclick = () => { weekOffset--; renderPlanner(); };
+    document.getElementById('next-week').onclick = () => { weekOffset++; renderPlanner(); };
 
-    function gWD(o){
-      let n=new Date(),d=n.getDay(),diff=(d?1-d:-6)+o*7,
-          m=new Date(n); m.setDate(n.getDate()+diff);
-      return Array.from({length:5},(_,i)=>{let D=new Date(m);D.setDate(m.getDate()+i);return D.toISOString().split('T')[0];});
+    function getWeekDates(offset) {
+      const now = new Date();
+      const dow = now.getDay(); // 0 domingo
+      const diff = (dow === 0 ? -6 : 1 - dow) + offset * 7;
+      const mon = new Date(now);
+      mon.setDate(now.getDate() + diff);
+      return Array.from({length:5}, (_,i) => {
+        const d = new Date(mon);
+        d.setDate(mon.getDate() + i);
+        return d.toISOString().split('T')[0];
+      });
     }
-    function rP(){
-      tbody.innerHTML='';
-      let dates=gWD(weekOff),total=0,done=0;
-      rEl.textContent=`Semana: ${dates[0]} → ${dates[4]}`;
-      dates.forEach((ds,i)=>{
-        let name=days[i];
-        scheduleBefore.blocks.forEach((b,bi)=>{
-          total++;
-          let id=`${ds}-${bi}`,tr=document.createElement('tr');
-          tr.innerHTML=`<td>${ds}</td><td>${name}</td><td>${b}</td><td>${scheduleBefore.suggestions[name][bi]}</td><td><input type="checkbox" id="${id}"></td>`;
+
+    function renderPlanner() {
+      tbody.innerHTML = '';
+      const dates = getWeekDates(weekOffset);
+      rangeEl.textContent = `Semana: ${dates[0]} → ${dates[4]}`;
+
+      let total = 0, done = 0;
+      dates.forEach((dateStr, idx) => {
+        const dayName = days[idx];
+        const isAfter = dateStr >= '2025-05-01';
+        const { blocks, suggestions } = isAfter ? scheduleAfter : scheduleBefore;
+        blocks.forEach((block, bIdx) => {
+          const id = `${dateStr}-${bIdx}`;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${dateStr}</td>
+            <td>${dayName}</td>
+            <td>${block}</td>
+            <td>${suggestions[dayName][bIdx]}</td>
+            <td><input type="checkbox" id="${id}"></td>
+          `;
           tbody.appendChild(tr);
+          total++;
         });
       });
-      tbody.querySelectorAll('input[type=checkbox]').forEach(cb=>{
-        if(localStorage.getItem(cb.id)==='true'){cb.checked=true;done++;}
-        cb.onchange=()=>{localStorage.setItem(cb.id,cb.checked);rP();};
+
+      // restaurar estado y listeners
+      const cbs = tbody.querySelectorAll('input[type="checkbox"]');
+      cbs.forEach(cb => {
+        if (localStorage.getItem(cb.id) === 'true') {
+          cb.checked = true;
+          done++;
+        }
+        cb.onchange = () => {
+          localStorage.setItem(cb.id, cb.checked);
+          renderPlanner(); // recalc progreso
+        };
       });
-      let pct=total?Math.round(done/total*100):0;
-      pEl.textContent=`Progreso: ${pct}% (${done}/${total})`;
-      qEl.textContent=quotes[Math.floor(Math.random()*quotes.length)];
+
+      const pct = total ? Math.round(done/total*100) : 0;
+      progressEl.textContent = `Progreso: ${pct}% (${done}/${total})`;
+      quoteEl.textContent = quotes[Math.floor(Math.random()*quotes.length)];
     }
-    rP();
+    renderPlanner();
 
-    // ——— FIREBASE ———
-    const firebaseConfig = {
-      apiKey: "AIzaSyB-BcypQo7cWL6jEWm_KVvMyNTN3Tgr204",
-      authDomain: "nico-s-hub.firebaseapp.com",
-      projectId: "nico-s-hub",
-      storageBucket: "nico-s-hub.firebasestorage.app",
-      messagingSenderId: "379085438498",
-      appId: "1:379085438498:web:05fca04d37cbcc9cb7947b",
-      measurementId: "G-7D6ZF24CJM"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    // ——— NOTAS EN FIRESTORE ———
-    [
-      {sec:'tfm',col:'notes-tfm'},
-      {sec:'energie',col:'notes-energie'},
-      {sec:'music',col:'notes-music'},
-      {sec:'croata',col:'notes-croata'},
-      {sec:'otros',col:'notes-otros'}
-    ].forEach(({sec,col})=>{
-      const inp=document.getElementById(`input-${sec}`),
-            btn=document.getElementById(`add-${sec}`),
-            list=document.getElementById(`notes-${sec}`);
-      function load(){
-        list.innerHTML='';
-        db.collection(col).orderBy('timestamp','desc').get().then(snap=>{
-          snap.forEach(doc=>{
-            const d=doc.data(),
-                  when=new Date(d.timestamp).toLocaleString(),
-                  li=document.createElement('li');
-            li.innerHTML=`<span class="note-date">[${when}]</span> ${d.text}`;
-            list.appendChild(li);
-          });
+    // ——— NOTAS LOCALSTORAGE (Agregar, Editar, Eliminar) ———
+    const sections = ['tfm','energie','music','croata','otros'];
+    sections.forEach(sec => {
+      const key = `notes-${sec}`;
+      const inputEl = document.getElementById(`input-${sec}`);
+      const btnEl   = document.getElementById(`add-${sec}`);
+      const listEl  = document.getElementById(`notes-${sec}`);
+      let notes = JSON.parse(localStorage.getItem(key) || '[]');
+      function renderNotes() {
+        listEl.innerHTML = '';
+        notes.forEach(n => {
+          const li = document.createElement('li');
+          li.dataset.id = n.id;
+          li.innerHTML = `
+            <span class="note-date">[${n.date}]</span>
+            <span class="note-text">${n.text}</span>
+            <span class="note-actions">
+              <button class="edit-note">Editar</button>
+              <button class="delete-note">Eliminar</button>
+            </span>
+          `;
+          listEl.appendChild(li);
+        });
+        attachNoteEvents();
+      }
+      function attachNoteEvents() {
+        listEl.querySelectorAll('.delete-note').forEach(btn => {
+          btn.onclick = () => {
+            const id = btn.closest('li').dataset.id;
+            notes = notes.filter(n => n.id.toString() !== id);
+            localStorage.setItem(key, JSON.stringify(notes));
+            renderNotes();
+          };
+        });
+        listEl.querySelectorAll('.edit-note').forEach(btn => {
+          btn.onclick = () => {
+            const li = btn.closest('li');
+            const id = li.dataset.id;
+            const note = notes.find(n => n.id.toString() === id);
+            const newText = prompt('Editar nota:', note.text);
+            if (newText !== null && newText.trim() !== "") {
+              note.text = newText.trim();
+              localStorage.setItem(key, JSON.stringify(notes));
+              renderNotes();
+            }
+          };
         });
       }
-      btn.onclick=()=>{let t=inp.value.trim(); if(!t)return;
-        db.collection(col).add({text:t,timestamp:Date.now()}).then(()=>{inp.value='';load();});
-      };
-      load();
+      btnEl.addEventListener('click', () => {
+        const text = inputEl.value.trim();
+        if (!text) return;
+        const now = new Date().toLocaleString();
+        const id  = Date.now();  // clave única
+        notes.unshift({ id, date: now, text });
+        localStorage.setItem(key, JSON.stringify(notes));
+        inputEl.value = '';
+        renderNotes();
+      });
+      renderNotes();
     });
 
-    // ——— MODO OSCURO/CLARO ———
-    const tog=document.getElementById('theme-toggle'),
-          saved=localStorage.getItem('theme')||'light';
-    function apply(th){
-      document.documentElement.setAttribute('data-theme',th);
-      tog.textContent = th==='light'?'🌙':'☀️';
-      localStorage.setItem('theme',th);
+    // ——— MODO CLARO/OSCURO ———
+    const toggleBtn = document.getElementById('theme-toggle');
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      toggleBtn.textContent = theme === 'light' ? '🌙' : '☀️';
+      localStorage.setItem('theme', theme);
     }
-    tog.onclick=()=> apply(document.documentElement.getAttribute('data-theme')==='light'?'dark':'light');
-    apply(saved);
+    toggleBtn.addEventListener('click', () => {
+      const newTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      applyTheme(newTheme);
+    });
+    applyTheme(currentTheme);
   </script>
 </body>
 </html>
-
